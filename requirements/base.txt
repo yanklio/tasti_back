@@ -1,0 +1,18 @@
+# Base requirements for production and development
+# Core Django packages
+Django==5.2.5
+asgiref==3.9.1
+sqlparse==0.5.3
+
+# REST API Framework
+djangorestframework==3.14.0
+pytz==2025.2
+
+# CORS for frontend communication
+django-cors-headers==4.3.1
+
+# Environment variable management
+django-environ==0.11.2
+
+# Essential utilities
+typing_extensions==4.14.1

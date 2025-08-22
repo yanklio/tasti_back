@@ -1,0 +1,33 @@
+# Development requirements
+# Include base requirements
+-r base.txt
+
+# Code formatting and linting
+black==25.1.0
+ruff==0.12.10
+
+# Type checking
+mypy==1.17.1
+mypy_extensions==1.1.0
+django-stubs==5.2.2
+django-stubs-ext==5.2.2
+types-PyYAML==6.0.12.20250809
+
+# Pre-commit hooks
+pre_commit==4.3.0
+cfgv==3.4.0
+identify==2.6.13
+nodeenv==1.9.1
+PyYAML==6.0.2
+virtualenv==20.34.0
+filelock==3.19.1
+distlib==0.4.0
+platformdirs==4.3.8
+packaging==25.0
+pathspec==0.12.1
+click==8.2.1
+
+# Testing (for future use)
+pytest==8.0.0
+pytest-django==4.8.0
+factory-boy==3.3.0
