@@ -4,12 +4,10 @@ from rest_framework.routers import DefaultRouter
 from . import views
 
 router = DefaultRouter()
+router.register(r"recipes", views.RecipesViewSet)
 
 urlpatterns = [
-    # Health check endpoints
-    path("health/", views.health_check, name="health_check"),
-    path("", include("recipes.urls")),
     path("", include(router.urls)),
 ]
 
-app_name = "core"
+app_name = "recipes"
