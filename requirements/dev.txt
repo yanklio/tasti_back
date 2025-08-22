@@ -31,3 +31,9 @@ click==8.2.1
 pytest==8.0.0
 pytest-django==4.8.0
 factory-boy==3.3.0
+
+# Language servers for Zed/LSP
+python-lsp-server==1.13.0
+python-lsp-black==2.0.0
+pylsp-mypy==0.7.0
+python-lsp-ruff==2.2.2
