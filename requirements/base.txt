@@ -8,6 +8,11 @@ sqlparse==0.5.3
 djangorestframework==3.14.0
 pytz==2025.2
 
+# Authentication
+django-allauth==0.65.11
+dj-rest-auth==7.0.1
+requests>=2.31.0
+
 # CORS for frontend communication
 django-cors-headers==4.3.1
 
