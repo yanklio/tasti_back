@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+from datetime import timedelta
 from pathlib import Path
 
 import environ
@@ -19,7 +20,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Initialize django-environ
 env = environ.Env(
-    # Set casting and default values
     DEBUG=(bool, False),
     CORS_ALLOW_ALL_ORIGINS=(bool, False),
     PAGE_SIZE=(int, 20),
@@ -47,6 +47,7 @@ ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["testserver"])
 # Application definition
 
 INSTALLED_APPS = [
+    # Django apps
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -54,11 +55,10 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.sites",
-    # Third party
+    # Third-party apps
     "rest_framework",
     "rest_framework.authtoken",
     "corsheaders",
-    # auth
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
@@ -112,9 +112,13 @@ DATABASES = {
     }
 }
 
-SITE_ID = 1
 
-# AuthenticationBackend
+# Authentication
+# https://docs.djangoproject.com/en/5.2/topics/auth/
+
+SITE_ID = 1
+AUTH_USER_MODEL = "accounts.User"
+
 AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
     "allauth.account.auth_backends.AuthenticationBackend",
@@ -126,19 +130,11 @@ AUTHENTICATION_BACKENDS = [
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": (
-            "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
-        ),
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
     },
-    {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
-    },
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
 
@@ -146,11 +142,8 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
 LANGUAGE_CODE = "en-us"
-
 TIME_ZONE = "UTC"
-
 USE_I18N = True
-
 USE_TZ = True
 
 
@@ -159,16 +152,19 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+
 # Django REST Framework
+# https://www.django-rest-framework.org/
+
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework.authentication.SessionAuthentication",
-        "rest_framework.authentication.TokenAuthentication",
+        "dj_rest_auth.jwt_auth.JWTCookieAuthentication",
     ],
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticatedOrReadOnly",
@@ -177,7 +173,30 @@ REST_FRAMEWORK = {
     "PAGE_SIZE": env("PAGE_SIZE"),
 }
 
-# CORS Settings (for frontend communication)
+
+# djangorestframework-simplejwt
+# https://django-rest-framework-simplejwt.readthedocs.io/
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+}
+
+
+# dj-rest-auth
+# https://dj-rest-auth.readthedocs.io/
+
+REST_AUTH = {
+    "USE_JWT": True,
+    "JWT_AUTH_COOKIE": "_auth",  # Name of access token cookie
+    "JWT_AUTH_REFRESH_COOKIE": "_refresh",  # Name of refresh token cookie
+    "JWT_AUTH_HTTPONLY": False,  # Allow refresh token to be sent with JS
+}
+
+
+# CORS Settings
+# https://pypi.org/project/django-cors-headers/
+
 CORS_ALLOWED_ORIGINS = env.list(
     "CORS_ALLOWED_ORIGINS",
     default=[
@@ -188,6 +207,3 @@ CORS_ALLOWED_ORIGINS = env.list(
 
 # For development - allows all origins (be careful!)
 CORS_ALLOW_ALL_ORIGINS = env("CORS_ALLOW_ALL_ORIGINS")
-
-# Custom User Model
-AUTH_USER_MODEL = "accounts.User"

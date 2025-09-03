@@ -10,6 +10,7 @@ pytz==2025.2
 
 # Authentication
 django-allauth==0.65.11
+djangorestframework-simplejwt==5.5.1
 dj-rest-auth==7.0.1
 requests>=2.31.0
 

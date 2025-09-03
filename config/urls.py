@@ -20,9 +20,9 @@ from django.urls import include, path
 
 urlpatterns = [
     path("admin/", admin.site.urls),  # admin endpoints
-    path("api/auth/", include("dj_rest_auth.urls")),  # dj-rest-auth endpoints
+    path("api/v1/auth/", include("dj_rest_auth.urls")),  # dj-rest-auth endpoints
     path(
-        "api/auth/register/", include("dj_rest_auth.registration.urls")
+        "api/v1/auth/register/", include("dj_rest_auth.registration.urls")
     ),  # dj-rest-auth endpoints
     path("api/v1/", include("core.urls")),  # API endpoints
 ]
