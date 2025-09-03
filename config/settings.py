@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     "corsheaders",
     # Local apps
     "core",
+    "accounts",
     "recipes",
 ]
 
@@ -167,3 +168,6 @@ CORS_ALLOWED_ORIGINS = env.list(
 
 # For development - allows all origins (be careful!)
 CORS_ALLOW_ALL_ORIGINS = env("CORS_ALLOW_ALL_ORIGINS")
+
+# Custom User Model
+AUTH_USER_MODEL = "accounts.User"
