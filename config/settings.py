@@ -57,13 +57,10 @@ INSTALLED_APPS = [
     "django.contrib.sites",
     # Third-party apps
     "rest_framework",
-    "rest_framework.authtoken",
     "corsheaders",
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
-    "dj_rest_auth",
-    "dj_rest_auth.registration",
     # Local apps
     "core",
     "apps.accounts",
@@ -164,7 +161,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "dj_rest_auth.jwt_auth.JWTCookieAuthentication",
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
     ],
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticatedOrReadOnly",
@@ -180,17 +177,6 @@ REST_FRAMEWORK = {
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
-}
-
-
-# dj-rest-auth
-# https://dj-rest-auth.readthedocs.io/
-
-REST_AUTH = {
-    "USE_JWT": True,
-    "JWT_AUTH_COOKIE": "_auth",  # Name of access token cookie
-    "JWT_AUTH_REFRESH_COOKIE": "_refresh",  # Name of refresh token cookie
-    "JWT_AUTH_HTTPONLY": False,  # Allow refresh token to be sent with JS
 }
 
 

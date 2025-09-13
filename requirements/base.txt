@@ -9,9 +9,8 @@ djangorestframework==3.14.0
 pytz==2025.2
 
 # Authentication
-django-allauth==0.65.11
+django-allauth==65.11.2
 djangorestframework-simplejwt==5.5.1
-dj-rest-auth==7.0.1
 requests>=2.31.0
 
 # CORS for frontend communication

@@ -8,7 +8,8 @@ router = DefaultRouter()
 urlpatterns = [
     # Health check endpoints
     path("health/", views.health_check, name="health_check"),
-    path("", include("apps.recipes.urls")),
+    path("auth/", include("apps.accounts.urls")),
+    path("recipes/", include("apps.recipes.urls")),
     path("", include(router.urls)),
 ]
 
