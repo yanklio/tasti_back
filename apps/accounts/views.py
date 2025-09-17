@@ -33,7 +33,11 @@ class RegisterView(generics.CreateAPIView):
         token_data = TokenSerializer.get_token_for_user(user)
 
         response = Response(
-            {"message": "User registered successfully", "access": token_data["access"]},
+            {
+                "message": "User registered successfully",
+                "access": token_data["access"],
+                "user": UserSerializer(user).data,
+            },
             status=status.HTTP_201_CREATED,
         )
 
@@ -62,7 +66,11 @@ class LoginView(APIView):
         token_data = TokenSerializer.get_token_for_user(user)
 
         response = Response(
-            {"message": "User logged in successfully", "access": token_data["access"]},
+            {
+                "message": "User logged in successfully",
+                "access": token_data["access"],
+                "user": UserSerializer(user).data,
+            },
             status=status.HTTP_201_CREATED,
         )
 
