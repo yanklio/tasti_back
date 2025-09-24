@@ -182,7 +182,7 @@ SIMPLE_JWT = {
 
 # CORS Settings
 # https://pypi.org/project/django-cors-headers/
-
+CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = env.list(
     "CORS_ALLOWED_ORIGINS",
     default=[
@@ -191,5 +191,23 @@ CORS_ALLOWED_ORIGINS = env.list(
     ],
 )
 
-# For development - allows all origins (be careful!)
-CORS_ALLOW_ALL_ORIGINS = env("CORS_ALLOW_ALL_ORIGINS")
+
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "accept-encoding",
+    "authorization",
+    "content-type",
+    "dnt",
+    "origin",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+]
+
+# Cookie Settings
+COOKIE_SECURE = not DEBUG
+COOKIE_SAMESITE = "Lax" if DEBUG else "None"
+
+# Refresh Token Settings
+REFRESH_TOKEN_MAX_AGE = 86400  # 1 day in seconds
+ROTATE_REFRESH_TOKENS = True  # Enable refresh token rotation for security

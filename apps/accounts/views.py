@@ -13,6 +13,11 @@ from .serializers import (
     TokenSerializer,
     UserSerializer,
 )
+from .utils.cookies import (
+    delete_refresh_token_cookie,
+    get_refresh_token_from_request,
+    set_refresh_token_cookie,
+)
 
 User = get_user_model()
 
@@ -41,14 +46,7 @@ class RegisterView(generics.CreateAPIView):
             status=status.HTTP_201_CREATED,
         )
 
-        response.set_cookie(
-            key="refresh_token",
-            value=token_data["refresh"],
-            max_age=86400,  # 1 day in seconds
-            httponly=True,
-            secure=not settings.DEBUG,
-            samesite="Lax",
-        )
+        set_refresh_token_cookie(response, token_data["refresh"])
 
         return response
 
@@ -74,14 +72,7 @@ class LoginView(APIView):
             status=status.HTTP_201_CREATED,
         )
 
-        response.set_cookie(
-            key="refresh_token",
-            value=token_data["refresh"],
-            max_age=86400,  # 1 day in seconds
-            httponly=True,
-            secure=not settings.DEBUG,
-            samesite="Lax",
-        )
+        set_refresh_token_cookie(response, token_data["refresh"])
 
         return response
 
@@ -97,7 +88,7 @@ class LogoutView(APIView):
             status=status.HTTP_200_OK,
         )
 
-        response.delete_cookie("refresh_token")
+        delete_refresh_token_cookie(response)
         return response
 
 
@@ -108,7 +99,7 @@ class CustomTokenRefreshView(APIView):
 
     def post(self, request, *args, **kwargs):
         # Get refresh token from cookie instead of request body
-        refresh_token = request.COOKIES.get("refresh_token")
+        refresh_token = get_refresh_token_from_request(request)
 
         if not refresh_token:
             return Response(
@@ -135,14 +126,7 @@ class CustomTokenRefreshView(APIView):
             # Optionally rotate the refresh token for better security
             if getattr(settings, "ROTATE_REFRESH_TOKENS", False):
                 new_refresh_token = str(RefreshToken.for_user(user))
-                response.set_cookie(
-                    key="refresh_token",
-                    value=new_refresh_token,
-                    max_age=86400,  # 1 day in seconds
-                    httponly=True,
-                    secure=not settings.DEBUG,
-                    samesite="Lax",
-                )
+                set_refresh_token_cookie(response, new_refresh_token)
 
             return response
 
