@@ -55,12 +55,15 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.sites",
-    # Third-party apps
+    # Rest
     "rest_framework",
     "corsheaders",
+    # Auth
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
+    # Storages
+    "storages"
     # Local apps
     "core",
     "apps.accounts",
@@ -109,6 +112,17 @@ DATABASES = {
     }
 }
 
+# FILE STORAGE(S3)
+AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY")
+AWS_STORAGE_BUCKET_NAME = env("AWS_STORAGE_BUCKET_NAME")
+AWS_S3_REGION_NAME = env("AWS_S3_REGION_NAME", default="us-east-1")
+AWS_S3_ENDPOINT_URL = env("AWS_S3_ENDPOINT_URL", default=None)
+AWS_DEFAULT_ACL = env("AWS_DEFAULT_ACL", default=None)
+AWS_S3_VERIFY = env.bool("AWS_S3_VERIFY", default=True)
+
+DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+
 
 # Authentication
 # https://docs.djangoproject.com/en/5.2/topics/auth/
@@ -126,9 +140,7 @@ AUTHENTICATION_BACKENDS = [
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
-    },
+    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
