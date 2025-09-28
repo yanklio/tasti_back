@@ -11,7 +11,7 @@ class Recipe(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    imageUrl = models.ImageField(upload_to="recipes/", null=True)
+    image_url = models.ImageField(upload_to="recipes/", null=True)
 
     class Meta:
         ordering = ["-created_at"]
