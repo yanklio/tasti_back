@@ -1,12 +1,33 @@
 from rest_framework import serializers
 
 from .models import Recipe
+from .utils.bucket import get_presigned_url
 
 
 class RecipeSerializer(serializers.ModelSerializer):
     owner = serializers.StringRelatedField(read_only=True)
+    image_download_url = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Recipe
-        fields = ["id", "title", "image_url", "description", "owner", "created_at", "updated_at"]
+        fields = [
+            "id",
+            "title",
+            "image_url",
+            "image_bucket_key",
+            "image_download_url",
+            "description",
+            "owner",
+            "created_at",
+            "updated_at",
+        ]
         read_only_fields = ["owner", "created_at", "updated_at"]
+
+    def get_image_download_url(self, obj):
+        """Generate presigned download URL if image exists"""
+        if obj.has_image:
+            try:
+                return get_presigned_url(obj.image_bucket_key, "GET", expiration=3600)
+            except Exception:
+                return None
+        return None
