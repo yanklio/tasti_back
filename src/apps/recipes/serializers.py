@@ -7,6 +7,7 @@ from .utils.bucket import get_presigned_url
 class RecipeSerializer(serializers.ModelSerializer):
     owner = serializers.StringRelatedField(read_only=True)
     image_download_url = serializers.SerializerMethodField(read_only=True)
+    request_presigned_url = serializers.BooleanField(write_only=True, required=False, default=False)
 
     class Meta:
         model = Recipe
@@ -20,6 +21,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             "owner",
             "created_at",
             "updated_at",
+            "request_presigned_url",
         ]
         read_only_fields = ["owner", "created_at", "updated_at"]
 
