@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from django.conf import settings
 
-from ...utils.bucket import get_bucket
+from core.utils.bucket import get_bucket
 
 
 class Command(BaseCommand):

@@ -1,6 +1,8 @@
 from django.conf import settings
 from django.db import models
 
+from core.utils.bucket import delete_object
+
 
 class Recipe(models.Model):
     title = models.CharField(max_length=255)
@@ -21,12 +23,22 @@ class Recipe(models.Model):
         return f"{self.title} by {self.owner.username}"
 
     def update_image(self, s3_key):
-        """Update the S3 image key"""
+        """Update the S3 image key, deleting the old one if different"""
+        if self.image_bucket_key and self.image_bucket_key != s3_key:
+            try:
+                delete_object(self.image_bucket_key)
+            except Exception:
+                pass 
         self.image_bucket_key = s3_key
         self.save(update_fields=["image_bucket_key", "updated_at"])
 
     def clear_image(self):
-        """Clear the S3 image key"""
+        """Clear the S3 image key, deleting the old one"""
+        if self.image_bucket_key:
+            try:
+                delete_object(self.image_bucket_key)
+            except Exception:
+                pass  
         self.image_bucket_key = None
         self.save(update_fields=["image_bucket_key", "updated_at"])
 
