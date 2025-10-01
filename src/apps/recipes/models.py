@@ -14,9 +14,6 @@ class Recipe(models.Model):
     # S3 storage fields
     image_bucket_key = models.CharField(max_length=500, null=True, blank=True)
 
-    # Legacy field for backward compatibility
-    image_url = models.ImageField(upload_to="recipes/", null=True, blank=True)
-
     class Meta:
         ordering = ["-created_at"]
 

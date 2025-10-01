@@ -14,7 +14,6 @@ class RecipeSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "title",
-            "image_url",
             "image_bucket_key",
             "image_download_url",
             "description",
@@ -24,6 +23,11 @@ class RecipeSerializer(serializers.ModelSerializer):
             "request_presigned_url",
         ]
         read_only_fields = ["owner", "created_at", "updated_at"]
+
+    def validate_image_bucket_key(self, value):
+        if value and not isinstance(value, str):
+            raise serializers.ValidationError("Image bucket key must be a string.")
+        return value
 
     def get_image_download_url(self, obj):
         """Generate presigned download URL if image exists"""
