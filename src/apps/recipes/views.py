@@ -1,6 +1,7 @@
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
+from rest_framework.decorators import action
 
 from .models import Recipe
 from .permissions import IsOwnerOrReadOnly
@@ -49,3 +50,20 @@ class RecipesViewSet(viewsets.ModelViewSet):
                 pass
 
         return Response(serializer.data, status=201, headers=headers)
+
+    @action(detail=True, methods=['patch'], permission_classes=[IsOwnerOrReadOnly])
+    def update_image(self, request, pk=None):
+        """Update the recipe's image bucket key after upload."""
+        recipe = self.get_object()
+        key = request.data.get('image_bucket_key')
+        if key:
+            recipe.update_image(key)
+            return Response({'status': 'image updated'})
+        return Response({'error': 'image_bucket_key required'}, status=400)
+
+    @action(detail=True, methods=['delete'], permission_classes=[IsOwnerOrReadOnly])
+    def clear_image(self, request, pk=None):
+        """Clear the recipe's image."""
+        recipe = self.get_object()
+        recipe.clear_image()
+        return Response({'status': 'image cleared'})
