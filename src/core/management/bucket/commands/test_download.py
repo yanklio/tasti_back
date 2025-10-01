@@ -2,7 +2,7 @@ import requests
 from django.core.management.base import BaseCommand
 from django.conf import settings
 
-from ...utils.bucket import get_presigned_url
+from core.utils.bucket import get_presigned_url
 
 
 class Command(BaseCommand):

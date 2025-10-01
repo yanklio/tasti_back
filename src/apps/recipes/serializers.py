@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from .models import Recipe
-from .utils.bucket import get_presigned_url
+from core.utils.bucket import get_presigned_url
 
 
 class RecipeSerializer(serializers.ModelSerializer):

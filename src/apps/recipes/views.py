@@ -6,7 +6,7 @@ from rest_framework.decorators import action
 from .models import Recipe
 from .permissions import IsOwnerOrReadOnly
 from .serializers import RecipeSerializer
-from .utils.bucket import generate_key, get_presigned_url
+from core.utils.bucket import generate_key, get_presigned_url
 
 
 class RecipesViewSet(viewsets.ModelViewSet):

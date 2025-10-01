@@ -3,7 +3,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .utils.bucket import generate_key, get_presigned_url
+from core.utils.bucket import generate_key, get_presigned_url
 
 
 class PresignedUrlView(APIView):
@@ -52,10 +52,6 @@ class PresignedUrlView(APIView):
                     {"error": "Failed to generate presigned URL"},
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 )
-
-            # Debug: Print the generated URL
-            print(f"DEBUG: Generated presigned URL: {presigned_url}")
-            print(f"DEBUG: Key: {key}")
 
             return Response(
                 {
