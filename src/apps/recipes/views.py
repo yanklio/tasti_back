@@ -28,27 +28,31 @@ class RecipesViewSet(viewsets.ModelViewSet):
         serializer.save(owner=self.request.user)
 
     def perform_destroy(self, instance):
-        """Delete the recipe's image from S3 before deleting the recipe."""
-        if instance.image_bucket_key:
+        """Delete the recipe and its image from S3."""
+        # Store the key before deletion
+        image_key = instance.image_bucket_key
+        
+        # Delete the recipe first
+        super().perform_destroy(instance)
+        
+        # If recipe deletion succeeded and there was an image, delete it
+        if image_key:
             try:
                 from core.utils.bucket import delete_object
-                delete_object(instance.image_bucket_key)
+                delete_object(image_key)
             except Exception:
-                # Log error but continue with recipe deletion
+                # Log error but don't fail since recipe is already deleted
                 pass
-        super().perform_destroy(instance)
 
-    def _generate_upload_url(self, serializer_data, headers, filename="image"):
-        """Generate presigned upload URL and return enhanced response."""
+    def _generate_upload_url(self, serializer_data, filename="image"):
+        """Generate presigned upload URL data."""
         image_key = generate_key("recipes", filename)
         presigned_url = get_presigned_url(image_key, "PUT", expiration=3600)
         
-        response_data = serializer_data.copy()
-        response_data.update({
+        return {
             'presigned_upload_url': presigned_url,
             'image_upload_key': image_key
-        })
-        return Response(response_data, status=201, headers=headers)
+        }
 
     def create(self, request):
         """Override create to optionally generate presigned upload URL."""
@@ -59,15 +63,18 @@ class RecipesViewSet(viewsets.ModelViewSet):
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
 
+        response_data = serializer.data.copy()
+        
         if request_presigned:
             filename = request.data.get('filename', 'image')
             try:
-                return self._generate_upload_url(serializer.data, headers, filename)
+                url_data = self._generate_upload_url(filename)
+                response_data.update(url_data)
             except Exception:
-                # If URL generation fails, still return success
-                pass
+                # If URL generation fails, add error flag but keep recipe data
+                response_data['presigned_url_error'] = 'Failed to generate upload URL, but recipe was created successfully'
 
-        return Response(serializer.data, status=201, headers=headers)
+        return Response(response_data, status=201, headers=headers)
 
     @action(detail=True, methods=['patch'], permission_classes=[IsOwnerOrReadOnly])
     def update_image(self, request, pk=None):
@@ -75,7 +82,8 @@ class RecipesViewSet(viewsets.ModelViewSet):
         recipe = self.get_object()
         key = request.data.get('image_bucket_key')
         
-        if key is None:
+        # Clear image if key is None, empty, or whitespace-only
+        if key is None or str(key).strip() == "":
             recipe.clear_image()
             return Response({'status': 'image cleared'})
         
