@@ -44,7 +44,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
                 # Log error but don't fail since recipe is already deleted
                 pass
 
-    def _generate_upload_url(self, serializer_data, filename="image"):
+    def _generate_upload_url(self, filename="image"):
         """Generate presigned upload URL data."""
         image_key = generate_key("recipes", filename)
         presigned_url = get_presigned_url(image_key, "PUT", expiration=3600)
@@ -71,7 +71,6 @@ class RecipesViewSet(viewsets.ModelViewSet):
                 url_data = self._generate_upload_url(filename)
                 response_data.update(url_data)
             except Exception:
-                # If URL generation fails, add error flag but keep recipe data
                 response_data['presigned_url_error'] = 'Failed to generate upload URL, but recipe was created successfully'
 
         return Response(response_data, status=201, headers=headers)
@@ -102,13 +101,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
 
         # Normalize key
         if not key.startswith("recipes/"):
-            key = f"recipes/{key}" if key else "recipes/"
-
-        if key == "recipes/":
-            return Response(
-                {"error": "Key cannot be empty after prefixing with 'recipes/'"},
-                status=status.HTTP_400_BAD_REQUEST,
-            ), None
+            key = f"recipes/{key}" if key else "recipes"
 
         return None, key  # No validation errors, return normalized key
 
@@ -122,19 +115,18 @@ class RecipesViewSet(viewsets.ModelViewSet):
     def presigned_url(self, request):
         """Generate presigned URLs for S3 operations (GET, PUT)"""
         method = request.data.get("method")
-        key = request.data.get("key", "")
         filename = request.data.get("filename")
         expiration = request.data.get("expiration", 3600)
+        
+        print("Presigned URL request data:", request.data)
 
         # Validate request and get normalized key
-        validation_error, normalized_key = self._validate_presigned_request(method, key)
+        validation_error, normalized_key = self._validate_presigned_request(method, '')
         if validation_error:
             return validation_error
 
-        # Build final key
         final_key = self._build_presigned_key(normalized_key, method, filename)
 
-        # Generate presigned URL
         try:
             presigned_url = get_presigned_url(final_key, method, expiration)
             
