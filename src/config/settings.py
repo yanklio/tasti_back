@@ -64,6 +64,8 @@ INSTALLED_APPS = [
     "allauth.socialaccount",
     # Storages
     "storages",
+    # Swagger
+    "drf_spectacular",
     # Local apps
     "core",
     "apps.accounts",
@@ -200,6 +202,7 @@ REST_FRAMEWORK = {
         "rest_framework.permissions.IsAuthenticatedOrReadOnly",
     ],
     "DEFAULT_PAGINATION_CLASS": "config.pagination.TastiPagination",
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "PAGE_SIZE": env("PAGE_SIZE"),
 }
 
@@ -244,3 +247,11 @@ COOKIE_SAMESITE = "Lax" if DEBUG else "None"
 # Refresh Token Settings
 REFRESH_TOKEN_MAX_AGE = 86400  # 1 day in seconds
 ROTATE_REFRESH_TOKENS = True  # Enable refresh token rotation for security
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Tasti API",
+    "DESCRIPTION": "Tasti API for managing recipes",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+    # OTHER SETTINGS
+}
