@@ -1,0 +1,2 @@
+# Development requirements (includes base + dev tools)
+-r requirements/dev.txt
