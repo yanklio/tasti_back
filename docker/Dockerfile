@@ -26,6 +26,9 @@ COPY src/ .
 # Expose port 8000
 EXPOSE 8000
 
+# Set entrypoint script
+ENTRYPOINT ["/app/src/entrypoint.sh"]
+
 # Run collectstatic if it exists, otherwise skip
 RUN if [ -f manage.py ] && grep -q "django.contrib.staticfiles" config/settings.py; then python manage.py collectstatic --noinput; fi
 
