@@ -1,0 +1,33 @@
+# Base requirements for production and development
+# Core Django packages
+Django==5.2.5
+asgiref==3.9.1
+sqlparse==0.5.3
+
+# REST API Framework
+djangorestframework==3.14.0
+pytz==2025.2
+
+# Authentication
+django-allauth==65.11.2
+djangorestframework-simplejwt==5.5.1
+requests>=2.31.0
+
+# S3 Storage
+django-storages==1.14.6
+boto3==1.40.39
+
+# Postgres
+psycopg2-binary==2.9.10
+
+# Swagger
+drf_spectacular==0.28.0
+
+# CORS for frontend communication
+django-cors-headers==4.3.1
+
+# Environment variable management
+django-environ==0.11.2
+
+# Essential utilities
+typing_extensions==4.14.1
