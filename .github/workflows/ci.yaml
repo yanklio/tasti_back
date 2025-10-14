@@ -1,0 +1,50 @@
+name: Deploy Angular App
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: .
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-1
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Get ECR repository URL from SSM Parameter Store
+        id: get-repo-url
+        run: |
+          echo "REPO_URL=$(aws ssm get-parameter --name "/my-app/backend/drf-ecr-repo-name" --query "Parameter.Value" --output text --region eu-west-1)" >> "$GITHUB_OUTPUT"
+
+      - name: Build, tag, and push clean image to Amazon ECR
+        env:
+          ECR_REPOSITORY: ${{ steps.get-repo-url.outputs.REPO_URL }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          # Build the Docker image without passing any build-time secrets
+          docker build --file docker/Dockerfile -t $ECR_REPOSITORY:$IMAGE_TAG .
+
+          # Push the image to ECR
+          docker push $ECR_REPOSITORY:$IMAGE_TAG
