@@ -26,12 +26,6 @@ COPY src/ .
 # Expose port 8000
 EXPOSE 8000
 
-# Set entrypoint script
-ENTRYPOINT ["/app/src/entrypoint.sh"]
-
-# Run collectstatic if it exists, otherwise skip
-RUN if [ -f manage.py ] && grep -q "django.contrib.staticfiles" config/settings.py; then python manage.py collectstatic --noinput; fi
-
 # Define the command to run your Django application
 # This is overridden by docker-compose.yml for development
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]

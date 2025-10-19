@@ -5,7 +5,10 @@ services:
     build:
       context: ..
       dockerfile: docker/Dockerfile
-    command: sh -c "python src/manage.py runserver 0.0.0.0:8000"
+    command: >
+      sh -c "python src/manage.py migrate &&
+             python src/manage.py createsuperuser --noinput || true &&
+             python src/manage.py runserver 0.0.0.0:8000"
     volumes:
       - ..:/app:z
     ports:
