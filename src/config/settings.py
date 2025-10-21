@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from datetime import timedelta
 from pathlib import Path
+from socket import gethostbyname, gethostname
 
 import environ
 
@@ -42,6 +43,7 @@ SECRET_KEY = env(
 DEBUG = env("DEBUG")
 
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["testserver"])
+ALLOWED_HOSTS.append(gethostbyname(gethostname()))
 
 
 # Application definition
