@@ -10,6 +10,7 @@ RUN apt-get update && apt-get install -y \
     gcc \
     python3-dev \
     musl-dev \
+    curl \
     --no-install-recommends && \
     rm -rf /var/lib/apt/lists/*
 
@@ -28,4 +29,4 @@ EXPOSE 8000
 
 # Define the command to run your Django application
 # This is overridden by docker-compose.yml for development
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["sh", "-c", "python manage.py migrate && python manage.py createsuperuser --noinput || true && python manage.py runserver 0.0.0.0:8000"]
