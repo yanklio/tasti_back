@@ -8,7 +8,7 @@ from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
-_bucket = None 
+_bucket = None
 
 
 def get_bucket():
@@ -16,9 +16,7 @@ def get_bucket():
     if _bucket is None:
         config = Config(
             signature_version="s3v4",
-            s3={
-                "addressing_style": "path"
-            },
+            s3={"addressing_style": "path"},
         )
 
         endpoint_url = getattr(settings, "AWS_S3_ENDPOINT_URL", None)
@@ -70,8 +68,9 @@ def put_object(key, data, content_type=None):
         logger.error(f"Error uploading object {key}: {e}")
         raise
 
+
 def generate_key(key, filename):
-    name, ext = os.path.splitext(filename)
+    _, ext = os.path.splitext(filename)
     clean_ext = ext.lstrip(".")
     return f"{key}/{uuid.uuid4()}.{clean_ext}"
 

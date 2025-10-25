@@ -14,7 +14,7 @@ class Recipe(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     # S3 storage fields
-    image_bucket_key = models.CharField(max_length=500, null=True, blank=True)
+    image_bucket_key = models.CharField(max_length=500, blank=True)
 
     class Meta:
         ordering = ["-created_at"]
@@ -28,7 +28,7 @@ class Recipe(models.Model):
             try:
                 delete_object(self.image_bucket_key)
             except Exception:
-                pass 
+                pass
         self.image_bucket_key = new_bucket_key
         self.save(update_fields=["image_bucket_key", "updated_at"])
 
@@ -38,7 +38,7 @@ class Recipe(models.Model):
             try:
                 delete_object(self.image_bucket_key)
             except Exception:
-                pass  
+                pass
         self.image_bucket_key = None
         self.save(update_fields=["image_bucket_key", "updated_at"])
 
