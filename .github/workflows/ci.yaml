@@ -1,4 +1,4 @@
-name: Deploy Angular App
+name: Deploy Django App
 on:
   push:
     branches:
