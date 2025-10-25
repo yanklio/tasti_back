@@ -124,13 +124,12 @@ class Command(BaseCommand):
             help="Reset existing data before seeding",
         )
 
-    def handle(self, *args, **options):
-        if options["reset"]:
-            self.stdout.write("Resetting existing data...")
-            Recipe.objects.all().delete()
-            User.objects.filter(username="tasti").delete()
+    def _reset_data(self):
+        self.stdout.write("Resetting existing data...")
+        Recipe.objects.all().delete()
+        User.objects.filter(username="tasti").delete()
 
-        # Create user
+    def _create_user(self):
         user, created = User.objects.get_or_create(username="tasti", defaults={"is_active": True})
         if created:
             password = get_random_string(length=12)
@@ -139,27 +138,55 @@ class Command(BaseCommand):
             self.stdout.write(self.style.SUCCESS(f'Created user "tasti" with password: {password}'))
         else:
             self.stdout.write('User "tasti" already exists')
+        return user
 
-        # Get sample images
+    def _get_image_files(self):
         sample_images_dir = os.path.join(os.path.dirname(__file__), "sample_images")
         if not os.path.exists(sample_images_dir):
             self.stdout.write(
                 self.style.WARNING("sample_images directory not found. Skipping image uploads.")
             )
-            image_files = []
-        else:
-            image_files = [
-                f
-                for f in os.listdir(sample_images_dir)
-                if f.lower().endswith((".jpg", ".jpeg", ".png"))
-            ]
-
+            return [], sample_images_dir
+        image_files = [
+            f
+            for f in os.listdir(sample_images_dir)
+            if f.lower().endswith((".jpg", ".jpeg", ".png"))
+        ]
         if not image_files:
             self.stdout.write(
                 self.style.WARNING("No image files found. Recipes will be created without images.")
             )
+        return image_files, sample_images_dir
 
-        # Create recipes
+    def _read_image_data(self, image_path):
+        with open(image_path, "rb") as f:
+            return f.read()
+
+    def _get_content_type(self, image_name):
+        if image_name.lower().endswith(".png"):
+            return "image/png"
+        else:
+            return "image/jpeg"
+
+    def _upload_to_s3_and_update_recipe(self, recipe, bucket_key, image_data, content_type):
+        put_object(bucket_key, image_data, content_type)
+        recipe.image_bucket_key = bucket_key
+        recipe.save(update_fields=["image_bucket_key"])
+        self.stdout.write(f'Uploaded image for "{recipe.title}"')
+
+    def _upload_image_for_recipe(self, recipe, image_name, sample_images_dir):
+        image_path = os.path.join(sample_images_dir, image_name)
+        try:
+            image_data = self._read_image_data(image_path)
+            bucket_key = generate_key("recipes", image_name)
+            content_type = self._get_content_type(image_name)
+            self._upload_to_s3_and_update_recipe(recipe, bucket_key, image_data, content_type)
+        except Exception as e:
+            self.stdout.write(
+                self.style.WARNING(f'Failed to upload image for "{recipe.title}": {e}')
+            )
+
+    def _create_recipes(self, user, image_files, sample_images_dir):
         recipes_created = 0
         for recipe_data in RECIPES_DATA:
             recipe, created = Recipe.objects.get_or_create(
@@ -171,37 +198,18 @@ class Command(BaseCommand):
                 # Upload image if available
                 image_name = recipe_data.get("image_name")
                 if image_name and image_name in image_files:
-                    image_file = image_name
-                    image_path = os.path.join(sample_images_dir, image_file)
-                    try:
-                        with open(image_path, "rb") as f:
-                            image_data = f.read()
-
-                        # Generate S3 key
-                        bucket_key = generate_key("recipes", image_file)
-
-                        # Determine content type
-                        if image_file.lower().endswith(".png"):
-                            content_type = "image/png"
-                        else:
-                            content_type = "image/jpeg"
-
-                        # Upload to S3
-                        put_object(bucket_key, image_data, content_type)
-
-                        # Update recipe
-                        recipe.image_bucket_key = bucket_key
-                        recipe.save(update_fields=["image_bucket_key"])
-
-                        self.stdout.write(f'Uploaded image for "{recipe.title}"')
-                    except Exception as e:
-                        self.stdout.write(
-                            self.style.WARNING(f'Failed to upload image for "{recipe.title}": {e}')
-                        )
+                    self._upload_image_for_recipe(recipe, image_name, sample_images_dir)
 
                 recipes_created += 1
                 self.stdout.write(f"Created recipe: {recipe.title}")
+        return recipes_created
 
+    def handle(self, *args, **options):
+        if options["reset"]:
+            self._reset_data()
+        user = self._create_user()
+        image_files, sample_images_dir = self._get_image_files()
+        recipes_created = self._create_recipes(user, image_files, sample_images_dir)
         self.stdout.write(
             self.style.SUCCESS(f"Seeding complete. Created {recipes_created} recipes.")
         )
