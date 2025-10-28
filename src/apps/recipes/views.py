@@ -1,3 +1,4 @@
+from django.db.models import Q
 from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.response import Response
@@ -22,6 +23,26 @@ class RecipesViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
     permission_classes = (IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
+
+    def get_queryset(self):
+        """
+        Optionally restricts the returned recipes to a given search term,
+        by filtering against a `search_term` query parameter in the URL.
+        """
+        queryset = self.queryset
+        search_term = self.request.query_params.get('search_term', None)
+        if search_term is not None:
+            search_in_description = self.request.query_params.get(
+                'search_in_description', 'false'
+            ).lower() in ('true', '1')
+
+            queries = Q(title__icontains=search_term)
+            if search_in_description:
+                queries |= Q(description__icontains=search_term)
+
+            queryset = queryset.filter(queries)
+
+        return queryset
 
     def perform_create(self, serializer):
         """Set the owner to the current user when creating a recipe."""
