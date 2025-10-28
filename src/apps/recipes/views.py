@@ -29,7 +29,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
         Optionally restricts the returned recipes to a given search term,
         by filtering against a `search_term` query parameter in the URL.
         """
-        queryset = self.queryset
+        queryset = super().get_queryset()
         search_term = self.request.query_params.get('search_term', None)
         if search_term is not None:
             search_in_description = self.request.query_params.get(
