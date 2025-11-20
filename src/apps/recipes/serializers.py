@@ -1,7 +1,8 @@
 from rest_framework import serializers
 
-from .models import Recipe
 from core.utils.bucket import get_presigned_url
+
+from .models import Recipe
 
 
 class RecipeSerializer(serializers.ModelSerializer):
@@ -17,6 +18,8 @@ class RecipeSerializer(serializers.ModelSerializer):
             "image_bucket_key",
             "image_download_url",
             "description",
+            "duration",
+            "difficulty",
             "owner",
             "created_at",
             "updated_at",

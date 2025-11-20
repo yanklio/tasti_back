@@ -5,7 +5,17 @@ from .models import Recipe
 
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
-    list_display = ["id", "title", "description", "owner", "image_bucket_key", "created_at", "updated_at"]
-    list_filter = ["title"]
+    list_display = [
+        "id",
+        "title",
+        "description",
+        "duration",
+        "difficulty",
+        "owner",
+        "image_bucket_key",
+        "created_at",
+        "updated_at",
+    ]
+    list_filter = ["title", "difficulty"]
     search_fields = ["title", "description"]
     ordering = ["id"]

@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.conf import settings
 from django.db import models
 
@@ -7,6 +9,12 @@ from core.utils.bucket import delete_object
 class Recipe(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
+    duration = models.DurationField(default=timedelta())
+    difficulty = models.CharField(
+        max_length=10,
+        choices=[("easy", "Easy"), ("medium", "Medium"), ("hard", "Hard")],
+        default="easy",
+    )
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="recipes"
     )
@@ -14,7 +22,7 @@ class Recipe(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     # S3 storage fields
-    image_bucket_key = models.CharField(max_length=500, blank=True)
+    image_bucket_key = models.CharField(max_length=500, blank=True, null=True)
 
     class Meta:
         ordering = ["-created_at"]

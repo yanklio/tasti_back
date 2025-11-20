@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta
 
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
@@ -15,101 +16,141 @@ RECIPES_DATA = [
         "title": "Classic Spaghetti Carbonara",
         "description": "A traditional Italian pasta dish made with eggs, cheese, pancetta, and black pepper. Simple yet delicious.",
         "image_name": "spaghetti_carbonara.jpg",
+        "duration": timedelta(minutes=30),
+        "difficulty": "medium",
     },
     {
         "title": "Chicken Tikka Masala",
         "description": "Creamy and spicy curry with tender chicken pieces in a rich tomato-based sauce. Served with rice or naan.",
         "image_name": "chicken_tikka.jpg",
+        "duration": timedelta(minutes=45),
+        "difficulty": "medium",
     },
     {
         "title": "Vegetable Stir Fry",
         "description": "Colorful mix of fresh vegetables stir-fried with soy sauce and garlic. Quick and healthy meal.",
         "image_name": "vegetable_stir_fry.jpg",
+        "duration": timedelta(minutes=20),
+        "difficulty": "easy",
     },
     {
         "title": "Chocolate Chip Cookies",
         "description": "Soft and chewy cookies loaded with chocolate chips. Perfect for dessert or snacking.",
         "image_name": "chocolate_chip_cookies.jpg",
+        "duration": timedelta(minutes=30),
+        "difficulty": "easy",
     },
     {
         "title": "Greek Salad",
         "description": "Fresh tomatoes, cucumbers, olives, feta cheese, and olive oil dressing. Light and refreshing.",
         "image_name": "greek_salad.jpg",
+        "duration": timedelta(minutes=15),
+        "difficulty": "easy",
     },
     {
         "title": "Beef Tacos",
         "description": "Seasoned ground beef in corn tortillas with lettuce, cheese, and salsa. Mexican street food favorite.",
         "image_name": "beef_tacos.jpg",
+        "duration": timedelta(minutes=30),
+        "difficulty": "medium",
     },
     {
         "title": "Mushroom Risotto",
         "description": "Creamy Arborio rice cooked with mushrooms, white wine, and Parmesan cheese. Italian comfort food.",
         "image_name": "mushroom_risotto.jpg",
+        "duration": timedelta(minutes=40),
+        "difficulty": "medium",
     },
     {
         "title": "Banana Bread",
         "description": "Moist bread made with ripe bananas, walnuts, and cinnamon. Great for breakfast or tea time.",
         "image_name": "banana_bread.jpg",
+        "duration": timedelta(minutes=60),
+        "difficulty": "easy",
     },
     {
         "title": "Shakshuka",
         "description": "North African dish of eggs poached in tomato sauce with peppers, onions, and spices. Served with bread.",
         "image_name": "shakshuka.jpg",
+        "duration": timedelta(minutes=30),
+        "difficulty": "medium",
     },
     {
         "title": "Caesar Salad",
         "description": "Crisp romaine lettuce with Caesar dressing, croutons, and Parmesan cheese. Classic salad.",
         "image_name": "caesar_salad.jpg",
+        "duration": timedelta(minutes=15),
+        "difficulty": "easy",
     },
     {
         "title": "Pancakes",
         "description": "Fluffy pancakes served with maple syrup and butter. Perfect weekend breakfast.",
         "image_name": "pancakes.jpg",
+        "duration": timedelta(minutes=20),
+        "difficulty": "easy",
     },
     {
         "title": "Lentil Soup",
         "description": "Hearty soup made with lentils, vegetables, and herbs. Comforting and nutritious.",
         "image_name": "lentil_soup.jpg",
+        "duration": timedelta(minutes=60),
+        "difficulty": "easy",
     },
     {
         "title": "Apple Pie",
         "description": "Traditional pie with cinnamon-spiced apples in a flaky crust. American classic.",
         "image_name": "apple_pie.jpg",
+        "duration": timedelta(minutes=90),
+        "difficulty": "medium",
     },
     {
         "title": "Pad Thai",
         "description": "Thai stir-fried noodles with shrimp, tofu, peanuts, and tamarind sauce. Street food delight.",
         "image_name": "pad_thai.jpg",
+        "duration": timedelta(minutes=25),
+        "difficulty": "medium",
     },
     {
         "title": "Quiche Lorraine",
         "description": "Savory pie with bacon, cheese, and eggs in a pastry crust. French brunch favorite.",
         "image_name": "quiche_lorraine.jpg",
+        "duration": timedelta(minutes=60),
+        "difficulty": "medium",
     },
     {
         "title": "Tomato Basil Soup",
         "description": "Creamy soup made with fresh tomatoes, basil, and cream. Served with grilled cheese.",
         "image_name": "tomato_basil_soup.jpg",
+        "duration": timedelta(minutes=40),
+        "difficulty": "easy",
     },
     {
         "title": "Fried Rice",
         "description": "Chinese-style rice dish with vegetables, eggs, and soy sauce. Quick and versatile.",
         "image_name": "fried_rice.jpg",
+        "duration": timedelta(minutes=20),
+        "difficulty": "easy",
     },
     {
         "title": "Brownies",
         "description": "Rich and fudgy chocolate brownies. Indulgent dessert for chocolate lovers.",
         "image_name": "brownies.jpg",
+        "duration": timedelta(minutes=45),
+        "difficulty": "easy",
     },
     {
         "title": "Caprese Salad",
         "description": "Simple Italian salad with tomatoes, mozzarella, basil, and balsamic glaze.",
         "image_name": "caprese_salad.jpg",
+        "duration": timedelta(minutes=10),
+        "difficulty": "easy",
     },
     {
         "title": "Chicken Curry",
         "description": "Spicy curry with tender chicken, coconut milk, and aromatic spices. Served with rice.",
         "image_name": "chicken_curry.jpg",
+        "duration": timedelta(minutes=50),
+        "difficulty": "hard",
     },
 ]
 
@@ -192,7 +233,11 @@ class Command(BaseCommand):
             recipe, created = Recipe.objects.get_or_create(
                 title=recipe_data["title"],
                 owner=user,
-                defaults={"description": recipe_data["description"]},
+                defaults={
+                    "description": recipe_data["description"],
+                    "duration": recipe_data["duration"],
+                    "difficulty": recipe_data["difficulty"],
+                },
             )
             if created:
                 # Upload image if available
@@ -202,6 +247,11 @@ class Command(BaseCommand):
 
                 recipes_created += 1
                 self.stdout.write(f"Created recipe: {recipe.title}")
+            else:
+                recipe.duration = recipe_data["duration"]
+                recipe.difficulty = recipe_data["difficulty"]
+                recipe.save(update_fields=["duration", "difficulty"])
+                self.stdout.write(f"Updated recipe: {recipe.title}")
         return recipes_created
 
     def handle(self, *args, **options):
