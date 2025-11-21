@@ -1,6 +1,7 @@
 from datetime import timedelta
 
 from django.conf import settings
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 
 from core.utils.bucket import delete_object
@@ -15,6 +16,9 @@ class Recipe(models.Model):
         choices=[("easy", "Easy"), ("medium", "Medium"), ("hard", "Hard")],
         default="easy",
     )
+
+    steps = ArrayField(models.TextField(blank=True, null=True), blank=True, null=True)
+
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="recipes"
     )

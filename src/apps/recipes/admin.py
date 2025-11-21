@@ -11,6 +11,7 @@ class RecipeAdmin(admin.ModelAdmin):
         "description",
         "duration",
         "difficulty",
+        "steps",
         "owner",
         "image_bucket_key",
         "created_at",

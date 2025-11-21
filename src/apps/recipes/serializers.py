@@ -8,7 +8,9 @@ from .models import Recipe
 class RecipeSerializer(serializers.ModelSerializer):
     owner = serializers.StringRelatedField(read_only=True)
     image_download_url = serializers.SerializerMethodField(read_only=True)
-    request_presigned_url = serializers.BooleanField(write_only=True, required=False, default=False)
+    request_presigned_url = serializers.BooleanField(
+        write_only=True, required=False, default=False
+    )
 
     class Meta:
         model = Recipe
@@ -40,3 +42,23 @@ class RecipeSerializer(serializers.ModelSerializer):
             except Exception:
                 return None
         return None
+
+
+class RecipeDetailSerializer(RecipeSerializer):
+    class Meta:
+        model = Recipe
+        fields = RecipeSerializer.Meta.fields + ["steps"]
+        read_only_fields = RecipeSerializer.Meta.read_only_fields
+
+    def get_image_download_url(self, obj):
+        """Generate presigned download URL if image exists"""
+        if obj.has_image:
+            try:
+                return get_presigned_url(obj.image_bucket_key, "GET", expiration=3600)
+            except Exception:
+                return None
+        return None
+
+    def get_steps(self, obj):
+        """Get steps for recipe"""
+        return obj.steps.values_list("description", flat=True)
